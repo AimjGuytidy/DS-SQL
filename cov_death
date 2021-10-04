@@ -1,0 +1,106 @@
+-- DROP TABLE covid_vac; 
+-- CREATE TABLE covid_vac(
+-- 	iso_code varchar(255) not null,
+-- 	continent varchar(255),
+-- 	"location" varchar(255) not null,	
+-- 	"date" timestamp not null,	
+-- 	new_tests  numeric,	
+-- 	total_tests  numeric,	
+-- 	total_tests_per_thousand  numeric,	
+-- 	new_tests_per_thousand  numeric,	
+-- 	new_tests_smoothed  numeric,	
+-- 	new_tests_smoothed_per_thousand  numeric,	
+-- 	positive_rate  numeric,	
+-- 	tests_per_case  numeric,	
+-- 	tests_units  text,	
+-- 	total_vaccinations  numeric,	
+-- 	people_vaccinated  numeric,	
+-- 	people_fully_vaccinated  numeric,	
+-- 	total_boosters  numeric,	
+-- 	new_vaccinations  numeric,	
+-- 	new_vaccinations_smoothed  numeric,	
+-- 	total_vaccinations_per_hundred  numeric,	
+-- 	people_vaccinated_per_hundred  numeric,	
+-- 	people_fully_vaccinated_per_hundred	  numeric,
+-- 	total_boosters_per_hundred  numeric,	
+-- 	new_vaccinations_smoothed_per_million  numeric,	
+-- 	stringency_index  numeric,	
+-- 	population_density  numeric,	
+-- 	median_age  numeric,	
+-- 	aged_65_older  numeric,	
+-- 	aged_70_older  numeric,	
+-- 	gdp_per_capita  numeric,	
+-- 	extreme_poverty  numeric,	
+-- 	cardiovasc_death_rate  numeric,	
+-- 	diabetes_prevalence  numeric,	
+-- 	female_smokers  numeric,	
+-- 	male_smokers  numeric,	
+-- 	handwashing_facilities  numeric,	
+-- 	hospital_beds_per_thousand  numeric,	
+-- 	life_expectancy	  numeric,
+-- 	human_development_index  numeric,	
+-- 	excess_mortality  numeric
+
+-- ); 
+--importing data from excel to add to our table covid_vac
+-- COPY covid_vac
+-- FROM 'C:\Users\user\Desktop\data analytic\data\covidy.csv'
+-- WITH (format csv,header);
+
+
+--let's view our table data
+-- select * 
+-- from covid_vac
+-- where tests_units is not null
+-- limit 178;
+
+-- select * 
+-- from covideath
+-- where continent is null;
+
+--overview of our data
+SELECT "location","date",total_cases,new_cases,total_deaths,population
+FROM covideath;
+
+--total cases vs total deaths
+SELECT "location","date",population,total_cases,total_deaths,
+	CASE 
+		WHEN total_deaths is not null AND total_cases is not null 
+			THEN concat(round((total_deaths/total_cases)*100,2)::text,'%')
+		ELSE ''
+	END AS deaths_per_cases
+FROM covideath
+order by "location";
+
+--countries with highest infection rate compared to population
+SELECT "location","date",population,total_cases,
+	CASE 
+		WHEN total_cases is not null 
+			THEN concat(round((total_cases/population)*100,2)::text,'%')
+		ELSE ''
+	END AS infection_rate
+FROM covideath
+order by (	CASE 
+		WHEN total_cases is not null 
+			THEN concat(round((total_cases/population)*100,2)::text,'%')
+		ELSE ''
+	END) DESC;
+	
+--countries with highest death count per population
+SELECT "location","date",population,total_deaths,
+	CASE 
+		WHEN total_deaths is not null 
+			THEN concat(round((total_deaths/population)*100,2)::text,'%')
+		ELSE ''
+	END AS death_per_pop
+FROM covideath
+order by (	CASE 
+		WHEN total_deaths is not null 
+			THEN concat(round((total_deaths/population)*100,2)::text,'%')
+		ELSE ''
+	END) DESC;
+	
+--break things by continent
+select *
+from covideath
+where continent is null;
